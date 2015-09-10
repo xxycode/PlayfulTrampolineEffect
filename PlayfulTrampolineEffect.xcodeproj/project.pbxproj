@@ -13,6 +13,7 @@
 		A9915DD71B96CA9900D0D4F8 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A9915DD61B96CA9900D0D4F8 /* Images.xcassets */; };
 		A9915DDA1B96CA9900D0D4F8 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = A9915DD81B96CA9900D0D4F8 /* LaunchScreen.xib */; };
 		A9915DE61B96CA9900D0D4F8 /* PlayfulTrampolineEffectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9915DE51B96CA9900D0D4F8 /* PlayfulTrampolineEffectTests.swift */; };
+		A9915DF01B96CAB900D0D4F8 /* PlayfulTrampolineEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9915DEF1B96CAB900D0D4F8 /* PlayfulTrampolineEffectView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +37,7 @@
 		A9915DDF1B96CA9900D0D4F8 /* PlayfulTrampolineEffectTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PlayfulTrampolineEffectTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9915DE41B96CA9900D0D4F8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A9915DE51B96CA9900D0D4F8 /* PlayfulTrampolineEffectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayfulTrampolineEffectTests.swift; sourceTree = "<group>"; };
+		A9915DEF1B96CAB900D0D4F8 /* PlayfulTrampolineEffectView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayfulTrampolineEffectView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +81,7 @@
 			children = (
 				A9915DCF1B96CA9900D0D4F8 /* AppDelegate.swift */,
 				A9915DD11B96CA9900D0D4F8 /* ViewController.swift */,
+				A9915DEF1B96CAB900D0D4F8 /* PlayfulTrampolineEffectView.swift */,
 				A9915DD31B96CA9900D0D4F8 /* Main.storyboard */,
 				A9915DD61B96CA9900D0D4F8 /* Images.xcassets */,
 				A9915DD81B96CA9900D0D4F8 /* LaunchScreen.xib */,
@@ -213,6 +216,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A9915DD21B96CA9900D0D4F8 /* ViewController.swift in Sources */,
+				A9915DF01B96CAB900D0D4F8 /* PlayfulTrampolineEffectView.swift in Sources */,
 				A9915DD01B96CA9900D0D4F8 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
