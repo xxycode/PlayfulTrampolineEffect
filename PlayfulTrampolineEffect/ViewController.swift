@@ -10,7 +10,7 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    var ttView = PlayfulTrampolineEffectView(frame: CGRectMake(0, 0, UIScreen.mainScreen().bounds.size.width , 600))
+    var ttView = PlayfulTrampolineEffectView(frame: CGRect(x:0, y:0, width:UIScreen.main.bounds.size.width , height:600))
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -19,12 +19,12 @@ class ViewController: UIViewController {
         self.view.addSubview(ttView)
         // Do any additional setup after loading the view, typically from a nib.
     }
-
+    
     @IBAction func act(sender: AnyObject) {
         ttView.popToNext()
     }
-
-
-
+    
+    
+    
 }
 

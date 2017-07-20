@@ -14,26 +14,26 @@ import UIKit
 }
 
 @objc protocol PlayfulTrampolineEffectViewDelegate{
-    optional func sizeForRow(view:PlayfulTrampolineEffectView,row:Int) -> CGSize
-    optional func didSelectAtRow(view:PlayfulTrampolineEffectView,row:Int)
+    @objc optional func sizeForRow(view:PlayfulTrampolineEffectView,row:Int) -> CGSize
+    @objc optional func didSelectAtRow(view:PlayfulTrampolineEffectView,row:Int)
 }
 
 class PlayfulTrampolineEffectView: UIView {
     
     private var contentView = UIView()
     private var backgroundLayer = CAShapeLayer()
-    private var preAnimateDuration = NSTimeInterval(0.3)
+    private var preAnimateDuration = TimeInterval(0.3)
     private var visiableView = Array<UIView>()
-    var beginLocation = CGPointMake(0, 0)
+    var beginLocation = CGPoint(x:0, y:0)
     var marginHorizontal = CGFloat(15)
     var marginVertical = CGFloat(30)
     var currentRow = Int(2)
     override var backgroundColor:UIColor?{
         didSet{
-            if backgroundColor != UIColor.clearColor(){
+            if backgroundColor != UIColor.clear{
                 contentView.backgroundColor = backgroundColor!
-                backgroundLayer.fillColor = backgroundColor!.CGColor
-                backgroundColor = UIColor.clearColor()
+                backgroundLayer.fillColor = backgroundColor!.cgColor
+                backgroundColor = UIColor.clear
             }
         }
     }
@@ -41,7 +41,7 @@ class PlayfulTrampolineEffectView: UIView {
     override var frame:CGRect{
         didSet{
             if frame.size.width < marginHorizontal * 2 || frame.size.height < marginVertical * 2{
-                var e = NSException(name: "SizeError", reason: "The width is too small", userInfo: nil)
+                let e = NSException(name: NSExceptionName(rawValue: "SizeError"), reason: "The width is too small", userInfo: nil)
                 e.raise()
             }
         }
@@ -51,9 +51,9 @@ class PlayfulTrampolineEffectView: UIView {
         super.init(frame: frame)
         layoutCustomViews()
     }
-
+    
     required init(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
+        super.init(coder: aDecoder)!
         layoutCustomViews()
     }
     
@@ -61,15 +61,15 @@ class PlayfulTrampolineEffectView: UIView {
         superview?.layoutIfNeeded()
         contentView.frame = bounds
         contentView.backgroundColor = backgroundColor
-        backgroundLayer.fillColor = backgroundColor?.CGColor
+        backgroundLayer.fillColor = backgroundColor?.cgColor
         let path = UIBezierPath()
-        path.moveToPoint(CGPointMake(0, 0))
-        path.addLineToPoint(CGPointMake(width, 0))
-        path.addLineToPoint(CGPointMake(width, height))
-        path.addLineToPoint(CGPointMake(0, height))
-        path.addLineToPoint(CGPointMake(0, 0))
-        backgroundLayer.strokeColor = UIColor.clearColor().CGColor
-        backgroundLayer.path = path.CGPath
+        path.move(to: CGPoint(x:0, y:0))
+        path.addLine(to: CGPoint(x:width, y:0))
+        path.addLine(to: CGPoint(x:width, y:height))
+        path.addLine(to: CGPoint(x:0, y:height))
+        path.addLine(to: CGPoint(x:0, y:0))
+        backgroundLayer.strokeColor = UIColor.clear.cgColor
+        backgroundLayer.path = path.cgPath
         backgroundLayer.frame = layer.bounds
         layer.addSublayer(backgroundLayer)
         addSubview(contentView)
@@ -78,13 +78,13 @@ class PlayfulTrampolineEffectView: UIView {
             var imageView = UIImageView()
             imageView.layer.cornerRadius = 5
             imageView.layer.masksToBounds = true
-            configureViewAtRow(i, view: imageView)
+            configureViewAtRow(row: i, view: imageView)
             visiableView.append(imageView)
             contentView.addSubview(imageView)
             imageView.image = UIImage(named: "\(i + 1)")
         }
         
-        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: "panAction:")
+        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(self.panAction(_:)))
         contentView.addGestureRecognizer(panGestureRecognizer)
         
     }
@@ -93,52 +93,52 @@ class PlayfulTrampolineEffectView: UIView {
         
     }
     
-    func panAction(sender:UIPanGestureRecognizer){
-        if sender.state == .Began{
-            beginLocation = sender.locationInView(contentView)
-        }else if sender.state == .Changed{
-            panGestureRecoginzerChanged(sender.locationInView(contentView).x)
+    func panAction(_ sender:UIPanGestureRecognizer){
+        if sender.state == .began{
+            beginLocation = sender.location(in: contentView)
+        }else if sender.state == .changed{
+            panGestureRecoginzerChanged(offset:sender.location(in: contentView).x)
         }else{
-            panGestureRecoginzerEnded(sender.locationInView(contentView).x)
+            panGestureRecoginzerEnded(offset:sender.location(in : contentView).x)
         }
     }
     
     func panGestureRecoginzerChanged(offset:CGFloat){
-        var firstView = visiableView[0]
-        var secondView = visiableView[1]
-        var topView = visiableView[2]
+        let firstView = visiableView[0]
+        let secondView = visiableView[1]
+        let topView = visiableView[2]
         var deltWidth:CGFloat
-        var offsetX = offset - beginLocation.x
+        let offsetX = offset - beginLocation.x
         if offsetX > 0{
             deltWidth = contentView.width - beginLocation.x
-            var progress = offsetX / deltWidth
-            makeTransformForView(topView, progress: progress, direction: 1, scale: 1)
-            makeTransformForView(secondView, progress: progress, direction: 1, scale: 0.9)
-            makeTransformForView(firstView, progress: progress, direction: 1, scale: 0.8)
+            let progress = offsetX / deltWidth
+            makeTransformForView(view: topView, progress: progress, direction: 1, scale: 1)
+            makeTransformForView(view: secondView, progress: progress, direction: 1, scale: 0.9)
+            makeTransformForView(view: firstView, progress: progress, direction: 1, scale: 0.8)
         }else{
             deltWidth = beginLocation.x
-            var progress = -offsetX / deltWidth
-            makeTransformForView(topView, progress: progress, direction: -1, scale: 1)
-            makeTransformForView(secondView, progress: progress, direction: -1, scale: 0.9)
-            makeTransformForView(firstView, progress: progress, direction: -1, scale: 0.8)
+            let progress = -offsetX / deltWidth
+            makeTransformForView(view: topView, progress: progress, direction: -1, scale: 1)
+            makeTransformForView(view: secondView, progress: progress, direction: -1, scale: 0.9)
+            makeTransformForView(view: firstView, progress: progress, direction: -1, scale: 0.8)
         }
     }
     
     func makeTransformForView(view:UIView,progress:CGFloat,direction:CGFloat,scale:CGFloat){
-        var rotationAngle = progress * CGFloat(M_PI * Double(direction) * 0.15 * Double(1 - (1 - scale) * 4))
-        var rotationTransForm = CGAffineTransformConcat(CGAffineTransformMakeScale(scale, scale), CGAffineTransformMakeRotation(rotationAngle))
-        var translationTransForm = CGAffineTransformMakeTranslation(progress * direction * contentView.width * (1 - (1 - scale) * 3), 0)
-        var fullTransForm = CGAffineTransformConcat(rotationTransForm, translationTransForm)
+        let rotationAngle = progress * CGFloat(.pi * Double(direction) * 0.15 * Double(1 - (1 - scale) * 4))
+        let rotationTransForm = CGAffineTransform(scaleX: scale, y: scale).concatenating(CGAffineTransform(rotationAngle: rotationAngle))
+        let translationTransForm = CGAffineTransform(translationX: progress * direction * contentView.width * (1 - (1 - scale) * 3), y: 0)
+        let fullTransForm = rotationTransForm.concatenating(translationTransForm)
         view.transform = fullTransForm
     }
     
     func panGestureRecoginzerEnded(offset:CGFloat){
-        var firstView = visiableView[0]
-        var secondView = visiableView[1]
-        var topView = visiableView[2]
+        let firstView = visiableView[0]
+        let secondView = visiableView[1]
+        let topView = visiableView[2]
         var deltWidth:CGFloat
         var progress:CGFloat
-        var offsetX = offset - beginLocation.x
+        let offsetX = offset - beginLocation.x
         var direction = CGFloat(1)
         if offsetX > 0{
             deltWidth = contentView.width - beginLocation.x
@@ -150,47 +150,47 @@ class PlayfulTrampolineEffectView: UIView {
             direction = -1
         }
         if progress < 0.65{
-            if CGAffineTransformIsIdentity(topView.transform) == false{
-                UIView.animateWithDuration(preAnimateDuration, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .CurveEaseInOut, animations: {
-                    topView.transform = CGAffineTransformIdentity
-                    secondView.transform = CGAffineTransformMakeScale(0.9, 0.9)
-                    firstView.transform = CGAffineTransformMakeScale(0.8, 0.8)
-                    }, completion: {finished in
+            if topView.transform.isIdentity == false{
+                UIView.animate(withDuration: preAnimateDuration, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: [], animations: {
+                    topView.transform = CGAffineTransform.identity
+                    secondView.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
+                    firstView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+                }, completion: {finished in
                 })
             }
         }else{
-            var currTransform = topView.transform
-            var translationTransform = CGAffineTransformMakeTranslation(direction * contentView.width, 0)
-            var fullTransForm = CGAffineTransformConcat(currTransform, translationTransform)
-            UIView.animateWithDuration(preAnimateDuration, animations: {
+            let currTransform = topView.transform
+            let translationTransform = CGAffineTransform(translationX: direction * contentView.width, y: 0)
+            let fullTransForm = currTransform.concatenating(translationTransform)
+            UIView.animate(withDuration: preAnimateDuration, animations: {
                 topView.transform = fullTransForm
                 topView.alpha = 0
-                self.configureViewAtRow(1, view: firstView)
-                self.configureViewAtRow(2, view: secondView)
-                }, completion: {finished in
-                    topView.alpha = 1
-                    self.configureViewAtRow(0, view: topView)
-                    topView.removeFromSuperview()
-                    secondView.removeFromSuperview()
-                    firstView.removeFromSuperview()
-                    self.contentView.addSubview(firstView)
-                    self.contentView.addSubview(secondView)
-                    self.contentView.insertSubview(topView, atIndex: 0)
-                    self.visiableView = [topView,firstView,secondView]
+                self.configureViewAtRow(row: 1, view: firstView)
+                self.configureViewAtRow(row: 2, view: secondView)
+            }, completion: {finished in
+                topView.alpha = 1
+                self.configureViewAtRow(row: 0, view: topView)
+                topView.removeFromSuperview()
+                secondView.removeFromSuperview()
+                firstView.removeFromSuperview()
+                self.contentView.addSubview(firstView)
+                self.contentView.addSubview(secondView)
+                self.contentView.insertSubview(topView, at: 0)
+                self.visiableView = [topView,firstView,secondView]
             })
         }
         
     }
     
     private func configureViewAtRow(row:Int,view:UIView){
-        var topDelt = CGFloat(5 * row)
-        var scale = CGFloat(1 - (CGFloat(2 - row) * 0.1))
-        var viewheight = frame.size.height - marginVertical - 60
-        var viewY = marginVertical + topDelt - (1 - scale) * viewheight * 0.5
-        var viewFrame = CGRectMake(marginHorizontal, viewY, frame.size.width - 2 * marginHorizontal, viewheight)
-        view.transform = CGAffineTransformIdentity
+        let topDelt = CGFloat(5 * row)
+        let scale = CGFloat(1 - (CGFloat(2 - row) * 0.1))
+        let viewheight = frame.size.height - marginVertical - 60
+        let viewY = marginVertical + topDelt - (1 - scale) * viewheight * 0.5
+        let viewFrame = CGRect(x:marginHorizontal, y:viewY, width:frame.size.width - 2 * marginHorizontal, height:viewheight)
+        view.transform = CGAffineTransform.identity
         view.frame = viewFrame
-        view.transform = CGAffineTransformMakeScale(scale, scale)
+        view.transform = CGAffineTransform(scaleX: scale, y: scale)
     }
     
     func popToNext(){
@@ -205,10 +205,10 @@ class PlayfulTrampolineEffectView: UIView {
         contentScaleAnimation.fillMode = kCAFillModeForwards
         contentScaleAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)
         contentScaleAnimation.autoreverses = false
-        contentScaleAnimation.removedOnCompletion = false
+        contentScaleAnimation.isRemovedOnCompletion = false
         
-        contentView.layer.addAnimation(contentScaleAnimation, forKey: "scalesmall")
-        executeAfterDelay(preAnimateDuration, clurse: {
+        contentView.layer.add(contentScaleAnimation, forKey: "scalesmall")
+        executeAfterDelay(delayTime: preAnimateDuration, clurse: {
             self.contentReverseAnimation()
         })
     }
@@ -217,18 +217,18 @@ class PlayfulTrampolineEffectView: UIView {
         let contentReverseAnimation = CAKeyframeAnimation(keyPath: "transform.scale")
         contentReverseAnimation.duration = preAnimateDuration
         var values = Array<CGFloat>()
-        for(var i = 0; i <= Int(preAnimateDuration * 60); i++){
-            values.append(scaleForContentReverseAnimation(CGFloat(Float(i) / (Float(preAnimateDuration) * 60))))
+        for i in 0...Int(preAnimateDuration * 60){
+            values.append(scaleForContentReverseAnimation(progress: CGFloat(Float(i) / (Float(preAnimateDuration) * 60))))
         }
         contentReverseAnimation.values = values
         contentReverseAnimation.fillMode = kCAFillModeForwards
         contentReverseAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)
-        contentView.layer.addAnimation(contentReverseAnimation, forKey: "scalesmall")
+        contentView.layer.add(contentReverseAnimation, forKey: "scalesmall")
     }
     
     private func scaleForContentReverseAnimation(progress:CGFloat) -> CGFloat{
-        var diff = CGFloat(0.25)
-        var res = 0.75 + diff * bounceEaseOut(progress)
+        let diff = CGFloat(0.25)
+        let res = 0.75 + diff * bounceEaseOut(p: progress)
         return res
     }
     
@@ -238,19 +238,21 @@ class PlayfulTrampolineEffectView: UIView {
         inAnimation.duration = preAnimateDuration
         inAnimation.fillMode = kCAFillModeForwards
         inAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)
-        var pathValues = Array<CGPathRef>()
-        for(var i = 0; i <= Int(preAnimateDuration * 60); i++){
-            pathValues.append(pathForBackgroundIn(Float(Float(i) / (Float(preAnimateDuration) * 60))))
+        var pathValues = Array<CGPath>()
+        
+        for i in 0...Int(preAnimateDuration * 60) {
+            pathValues.append(pathForBackgroundIn(progress: Float(Float(i) / (Float(preAnimateDuration) * 60))))
         }
+        
         inAnimation.values = pathValues
         inAnimation.autoreverses = false
-        inAnimation.removedOnCompletion = false
-        inAnimation.delegate = self
-        backgroundLayer.path = pathForBackgroundIn(1)
+        inAnimation.isRemovedOnCompletion = false
+        inAnimation.delegate = self as? CAAnimationDelegate
+        backgroundLayer.path = pathForBackgroundIn(progress: 1)
         
-        backgroundLayer.addAnimation(inAnimation, forKey: "inAni")
+        backgroundLayer.add(inAnimation, forKey: "inAni")
         
-        executeAfterDelay(preAnimateDuration, clurse: {
+        executeAfterDelay(delayTime: preAnimateDuration, clurse: {
             self.backgroundAnimationReverses()
             self.expansionAnimation()
         })
@@ -259,81 +261,80 @@ class PlayfulTrampolineEffectView: UIView {
     private func backgroundAnimationReverses(){
         let reverseAnimation = CAKeyframeAnimation(keyPath: "path")
         reverseAnimation.duration = preAnimateDuration
-        var rePathValues = Array<CGPathRef>()
-        for(var i = 0; i <= Int(preAnimateDuration * 60); i++){
-            rePathValues.append(pathForBackgroundReverse(Float(Float(i) / Float(preAnimateDuration * 60))))
+        var rePathValues = Array<CGPath>()
+        
+        for i in 0...Int(preAnimateDuration * 60) {
+            rePathValues.append(pathForBackgroundReverse(progress: Float(Float(i) / Float(preAnimateDuration * 60))))
         }
         reverseAnimation.values = rePathValues
         reverseAnimation.fillMode = kCAFillModeForwards
         reverseAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseOut)
         reverseAnimation.autoreverses = false
-        reverseAnimation.removedOnCompletion = false
-        backgroundLayer.addAnimation(reverseAnimation, forKey: "reAni")
+        reverseAnimation.isRemovedOnCompletion = false
+        backgroundLayer.add(reverseAnimation, forKey: "reAni")
     }
     
-    private func pathForBackgroundReverse(progress:Float) -> CGPathRef{
+    private func pathForBackgroundReverse(progress:Float) -> CGPath{
         //var valuePorgress = CGFloat(0.5 * Float(a) * currentTime * currentTime)
-        var valuePorgress = bounceEaseOut(CGFloat(progress))
-        var controlPointTop = CGPointMake(width * 0.5, height * (0.25 - 0.25 * valuePorgress))
-        var controlPointRight = CGPointMake(width * (0.75 + 0.25 * valuePorgress), height * 0.5)
-        var controlPointBottom = CGPointMake(width * 0.5, height * (0.75 + 0.25 * valuePorgress))
-        var controlPointLeft = CGPointMake(width * (0.25 - 0.25 * valuePorgress), height * 0.5)
-        var path = UIBezierPath()
-        path.moveToPoint(CGPointMake(0, 0))
-        path.addQuadCurveToPoint(CGPointMake(width, 0), controlPoint: controlPointTop)
-        path.addQuadCurveToPoint(CGPointMake(width, height), controlPoint: controlPointRight)
-        path.addQuadCurveToPoint(CGPointMake(0, height), controlPoint: controlPointBottom)
-        path.addQuadCurveToPoint(CGPointMake(0, 0), controlPoint: controlPointLeft)
-        return path.CGPath
+        let valuePorgress = bounceEaseOut(p: CGFloat(progress))
+        let controlPointTop = CGPoint(x:width * 0.5, y:height * (0.25 - 0.25 * valuePorgress))
+        let controlPointRight = CGPoint(x:width * (0.75 + 0.25 * valuePorgress), y:height * 0.5)
+        let controlPointBottom = CGPoint(x:width * 0.5, y:height * (0.75 + 0.25 * valuePorgress))
+        let controlPointLeft = CGPoint(x:width * (0.25 - 0.25 * valuePorgress), y:height * 0.5)
+        let path = UIBezierPath()
+        path.move(to: CGPoint(x:0, y:0))
+        path.addQuadCurve(to: CGPoint(x:width, y:0), controlPoint: controlPointTop)
+        path.addQuadCurve(to: CGPoint(x:width, y:height), controlPoint: controlPointRight)
+        path.addQuadCurve(to: CGPoint(x:0, y:height), controlPoint: controlPointBottom)
+        path.addQuadCurve(to: CGPoint(x:0, y:0), controlPoint: controlPointLeft)
+        return path.cgPath
     }
     
-    private func pathForBackgroundIn(progress:Float) -> CGPathRef{
-        var valuePorgress = CGFloat(0.25 * progress)
-        var controlPointTop = CGPointMake(width * 0.5, height * valuePorgress)
-        var controlPointRight = CGPointMake(width * (1 - valuePorgress), height * 0.5)
-        var controlPointBottom = CGPointMake(width * 0.5, height * (1 - valuePorgress))
-        var controlPointLeft = CGPointMake(width * valuePorgress, height * 0.5)
-        var path = UIBezierPath()
-        path.moveToPoint(CGPointMake(0, 0))
-        path.addQuadCurveToPoint(CGPointMake(width, 0), controlPoint: controlPointTop)
-        path.addQuadCurveToPoint(CGPointMake(width, height), controlPoint: controlPointRight)
-        path.addQuadCurveToPoint(CGPointMake(0, height), controlPoint: controlPointBottom)
-        path.addQuadCurveToPoint(CGPointMake(0, 0), controlPoint: controlPointLeft)
-        return path.CGPath
+    private func pathForBackgroundIn(progress:Float) -> CGPath{
+        let valuePorgress = CGFloat(0.25 * progress)
+        let controlPointTop = CGPoint(x:width * 0.5, y:height * valuePorgress)
+        let controlPointRight = CGPoint(x:width * (1 - valuePorgress), y:height * 0.5)
+        let controlPointBottom = CGPoint(x:width * 0.5, y:height * (1 - valuePorgress))
+        let controlPointLeft = CGPoint(x:width * valuePorgress, y:height * 0.5)
+        let path = UIBezierPath()
+        path.move(to: CGPoint(x:0, y:0))
+        path.addQuadCurve(to: CGPoint(x:width, y:0), controlPoint: controlPointTop)
+        path.addQuadCurve(to: CGPoint(x:width, y:height), controlPoint: controlPointRight)
+        path.addQuadCurve(to: CGPoint(x:0, y:height), controlPoint: controlPointBottom)
+        path.addQuadCurve(to: CGPoint(x:0, y:0), controlPoint: controlPointLeft)
+        return path.cgPath
     }
     
     private func expansionAnimation(){
-        var zoomTransform = CGAffineTransformMakeScale(1.2, 1.2)
-        var firstView = visiableView[0]
-        var secondView = visiableView[1]
-        var topView = visiableView[2]
-        UIView.animateWithDuration(preAnimateDuration, delay: 0.5 * preAnimateDuration, options: .CurveEaseOut, animations: {
+        let zoomTransform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+        let firstView = visiableView[0]
+        let secondView = visiableView[1]
+        let topView = visiableView[2]
+        UIView.animate(withDuration: preAnimateDuration, delay: 0.5 * preAnimateDuration, options: [], animations: {
             topView.transform = zoomTransform
             topView.alpha = 0.2
+        }, completion: {finished in
+            topView.alpha = 1
+            self.configureViewAtRow(row: 0, view: topView)
+            topView.removeFromSuperview()
+            secondView.removeFromSuperview()
+            firstView.removeFromSuperview()
+            self.contentView.addSubview(firstView)
+            self.contentView.addSubview(secondView)
+            UIView.animate(withDuration: self.preAnimateDuration, animations: {
+                self.configureViewAtRow(row: 1, view: firstView)
+                self.configureViewAtRow(row: 2, view: secondView)
             }, completion: {finished in
-                topView.alpha = 1
-                self.configureViewAtRow(0, view: topView)
-                topView.removeFromSuperview()
-                secondView.removeFromSuperview()
-                firstView.removeFromSuperview()
-                self.contentView.addSubview(firstView)
-                self.contentView.addSubview(secondView)
-                UIView.animateWithDuration(self.preAnimateDuration, animations: {
-                    self.configureViewAtRow(1, view: firstView)
-                    self.configureViewAtRow(2, view: secondView)
-                    }, completion: {finished in
-                        self.contentView.insertSubview(topView, atIndex: 0)
-                        self.visiableView = [topView,firstView,secondView]
-                })
+                self.contentView.insertSubview(topView, at: 0)
+                self.visiableView = [topView,firstView,secondView]
+            })
         })
         
     }
     
-    private func executeAfterDelay(delayTime:NSTimeInterval,clurse:() -> Void
+    private func executeAfterDelay(delayTime:TimeInterval,clurse:@escaping () -> Void
         ){
-        let delay = dispatch_time(DISPATCH_TIME_NOW,
-            Int64(delayTime * Double(NSEC_PER_SEC)))
-        dispatch_after(delay, dispatch_get_main_queue()) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + delayTime) {
             clurse()
         }
     }
@@ -378,7 +379,7 @@ extension UIView{
             return frame.size.width
         }
         set{
-            var f = frame
+            let f = frame
             frame.size.width = newValue
             frame = f
         }
@@ -388,7 +389,7 @@ extension UIView{
             return frame.size.height
         }
         set{
-            var f = frame
+            let f = frame
             frame.size.height = newValue
             frame = f
         }
@@ -399,3 +400,4 @@ extension UIView{
         }
     }
 }
+
